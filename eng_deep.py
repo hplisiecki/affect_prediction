@@ -204,6 +204,11 @@ class BertRegression(nn.Module):
         _, y = self.bert1(input_ids = input_id1, attention_mask=mask1, return_dict=False)
         _, z = self.bert2(input_ids = input_id3, attention_mask=mask3, return_dict=False)
         x = torch.cat((y, z), dim=1)
+        output = from_embedding(x)
+        return output
+        
+       
+    def from_embedding(self, x):
         x = self.dropout(x)
         x = self.dropout(x)
         x = self.l1(x) + x
