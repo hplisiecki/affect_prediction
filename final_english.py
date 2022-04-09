@@ -167,12 +167,12 @@ class BertRegression(nn.Module):
         self.bert1 = AutoModel.from_pretrained(model1)
         self.bert2 = AutoModel.from_pretrained(model2)
 
-        self.affect = nn.Linear(hidden_dim_valence, 1)
+        self.valence = nn.Linear(hidden_dim_valence, 1)
         self.arousal = nn.Linear(hidden_dim_arousal, 1)
         self.dominance = nn.Linear(hidden_dim_dominance, 1)
         self.aoa = nn.Linear(hidden_dim_dominance, 1)
         self.concreteness = nn.Linear(hidden_dim_dominance, 1)
-        self.l_1_affect = nn.Linear(hidden_dim_valence, hidden_dim_valence)
+        self.l_1_valence = nn.Linear(hidden_dim_valence, hidden_dim_valence)
         self.l_1_arousal = nn.Linear(hidden_dim_arousal, hidden_dim_arousal)
         self.l_1_dominance = nn.Linear(hidden_dim_dominance, hidden_dim_dominance)
         self.l_1_aoa = nn.Linear(hidden_dim_dominance, hidden_dim_dominance)
@@ -187,11 +187,15 @@ class BertRegression(nn.Module):
         _, y = self.bert1(input_ids = input_id1, attention_mask=mask1, return_dict=False)
         _, z = self.bert2(input_ids = input_id3, attention_mask=mask3, return_dict=False)
         x = torch.cat((y, z), dim=1)
+        output = self.from_embedding(x)
+        return output
+
+    def from_embedding(self, x):
         x = self.dropout(x)
 
 
-        affect_all = self.dropout(self.relu(self.layer_norm(self.l_1_affect(x) + x)))
-        affect = self.sigmoid(self.affect(affect_all))
+        valence_all = self.dropout(self.relu(self.layer_norm(self.l_1_valence(x) + x)))
+        valence = self.sigmoid(self.valence(valence_all))
 
         arousal_all = self.dropout(self.relu(self.layer_norm(self.l_1_arousal(x) + x)))
         arousal = self.sigmoid(self.arousal(arousal_all))
@@ -205,7 +209,7 @@ class BertRegression(nn.Module):
         concreteness_all = self.dropout(self.relu(self.layer_norm(self.l_1_concreteness(x) + x)))
         concreteness = self.sigmoid(self.concreteness(concreteness_all))
 
-        return affect, dominance, arousal, aoa, concreteness
+        return valence, dominance, arousal, aoa, concreteness
 
 
 

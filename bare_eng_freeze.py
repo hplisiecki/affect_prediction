@@ -186,13 +186,13 @@ class BertRegression(nn.Module):
         self.l2 = nn.Linear(hidden_dim_valence, hidden_dim_valence)
         self.l3 = nn.Linear(hidden_dim_valence, hidden_dim_valence)
 
-        self.affect = nn.Linear(hidden_dim_valence, 1)
+        self.valence = nn.Linear(hidden_dim_valence, 1)
         self.arousal = nn.Linear(hidden_dim_arousal, 1)
         self.dominance = nn.Linear(hidden_dim_dominance, 1)
         self.aoa = nn.Linear(hidden_dim_dominance, 1)
         self.concreteness = nn.Linear(hidden_dim_dominance, 1)
 
-        self.l_1_affect = nn.Linear(hidden_dim_valence, hidden_dim_valence)
+        self.l_1_valence = nn.Linear(hidden_dim_valence, hidden_dim_valence)
         self.l_1_arousal = nn.Linear(hidden_dim_arousal, hidden_dim_arousal)
         self.l_1_dominance = nn.Linear(hidden_dim_dominance, hidden_dim_dominance)
         self.l_1_aoa = nn.Linear(hidden_dim_dominance, hidden_dim_dominance)
@@ -204,10 +204,13 @@ class BertRegression(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input_id1, mask1, input_id2, mask2):
-        _, y = self.bert1(input_ids = input_id1, attention_mask=mask1, return_dict=False)
-        _, z = self.bert2(input_ids = input_id2, attention_mask=mask2, return_dict=False)
+        _, y = self.bert1(input_ids=input_id1, attention_mask=mask1, return_dict=False)
+        _, z = self.bert2(input_ids=input_id2, attention_mask=mask2, return_dict=False)
         x = torch.cat((y, z), dim=1)
+        output = self.from_embedding(x)
+        return output
 
+    def from_embedding(self, x):
         # x = self.l1(x)
         # x = self.relu(x)
         # x = self.dropout(x)
@@ -218,9 +221,8 @@ class BertRegression(nn.Module):
         # x = self.relu(x)
         # x = self.dropout(x)
 
-
-        affect_all = self.dropout(self.relu(self.layer_norm(self.l_1_affect(x) + x)))
-        affect = self.sigmoid(self.affect(affect_all))
+        valence_all = self.dropout(self.relu(self.layer_norm(self.l_1_valence(x) + x)))
+        valence = self.sigmoid(self.valence(valence_all))
 
         arousal_all = self.dropout(self.relu(self.layer_norm(self.l_1_arousal(x) + x)))
         arousal = self.sigmoid(self.arousal(arousal_all))
@@ -234,8 +236,7 @@ class BertRegression(nn.Module):
         concreteness_all = self.dropout(self.relu(self.layer_norm(self.l_1_concreteness(x) + x)))
         concreteness = self.sigmoid(self.concreteness(concreteness_all))
 
-        return affect, dominance, arousal, aoa, concreteness
-
+        return valence, dominance, arousal, aoa, concreteness
 
 
 
