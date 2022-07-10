@@ -1,36 +1,35 @@
 import pandas as pd
+from transformers import PreTrainedTokenizerFast, get_linear_schedule_with_warmup, RobertaModel
+import os
 import wandb
-from transformers import get_linear_schedule_with_warmup, BertTokenizer, BertModel
-from repo.dataset_and_model import Dataset, BertRegression
 import torch
+from repo.dataset_and_model import Dataset, BertRegression
 from repo.training_loop import training_loop
-from transformers import logging
-logging.set_verbosity_error()
 
 ###############################################################################
 """
-Spanish word norm bert training script
+Polish word norm bert training script
 """
 ###############################################################################
 ###############################################################################
 # HYPERPARAMETERS
 #################################
 
-max_len = 6
+max_len = 10
 hidden_dim = 768
 dropout = 0.2
 warmup_steps = 600
 save_dir = 'models/test_run'
 
-metric_names = ['valence', 'arousal', 'concreteness', 'imageability', 'familiarity']
+metric_names = ['valence', 'arousal', 'dominance', 'origin', 'significance', 'concreteness', 'imageability', 'aqcuisition']
 
-model_dir = 'dccuchile/bert-base-spanish-wwm-cased'
+model_dir = "C:/Users/hplis/PycharmProjects/roberta/roberta_base_transformers/"
 
-model_name = ['bert1']
-model_initialization = [BertModel.from_pretrained('dccuchile/bert-base-spanish-wwm-cased')]
+model_name = ["bert"]
+model_initialization = [RobertaModel.from_pretrained('C:/Users/hplis/PycharmProjects/roberta/roberta_base_transformers/')]
 
 epochs = 1000
-batch_size = 300
+batch_size = 500
 learning_rate = 5e-4
 eps = 1e-8
 weight_decay = 0.3
@@ -44,16 +43,17 @@ device = torch.device("cuda" if use_cuda else "cpu")
 # DATA LOADING
 #################################
 
-df_train = pd.read_parquet('train_spanish.parquet')
-df_val = pd.read_parquet('val_spanish.parquet')
-df_test = pd.read_parquet('test_spanish.parquet')
+df_train = pd.read_parquet('train_octa_clean.parquet')
+df_val = pd.read_parquet('val_octa_clean.parquet')
+df_test = pd.read_parquet('test_octa_clean.parquet')
 
 ###############################################################################
 # INITIALIZATION
 #################################
 
 # TOKENIZER
-tokenizer = BertTokenizer.from_pretrained(model_dir)
+tokenizer = PreTrainedTokenizerFast(tokenizer_file=os.path.join(model_dir, "tokenizer.json"))
+tokenizer.pad_token = 0
 
 # MODEL
 model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
@@ -79,7 +79,7 @@ if use_cuda:
     model = model.cuda()
     criterion = criterion.cuda()
 
-wandb.init(project="spanish", entity="hubertp")
+wandb.init(project="dutch", entity="hubertp")
 wandb.watch(model, log_freq=5)
 
 # LOOP

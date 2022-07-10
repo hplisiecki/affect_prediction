@@ -1,37 +1,39 @@
 import pandas as pd
 import wandb
-from transformers import get_linear_schedule_with_warmup, BertTokenizer, BertModel
-from repo.dataset_and_model import Dataset, BertRegression
 import torch
+from transformers import get_linear_schedule_with_warmup, RobertaTokenizer, AutoTokenizer, RobertaModel, AutoModel
 from repo.training_loop import training_loop
+from repo.dataset_and_model import Dataset, BertRegression
 from transformers import logging
 logging.set_verbosity_error()
 
 ###############################################################################
 """
-Spanish word norm bert training script
+Dutch word norm bert training script
 """
 ###############################################################################
 ###############################################################################
 # HYPERPARAMETERS
 #################################
-
-max_len = 6
-hidden_dim = 768
-dropout = 0.2
+# 7, 8
+max_len = [7, 8]
+hidden_dim = 1536
+dropout = 0.1
 warmup_steps = 600
 save_dir = 'models/test_run'
+#
+metric_names = ['valence', 'arousal', 'dominance', 'aqcuisition']
 
-metric_names = ['valence', 'arousal', 'concreteness', 'imageability', 'familiarity']
+model_dir1 = "pdelobelle/robbert-v2-dutch-base"
+model_dir2 = "GroNLP/bert-base-dutch-cased"
 
-model_dir = 'dccuchile/bert-base-spanish-wwm-cased'
+model_name = ['bert1', 'bert2']
 
-model_name = ['bert1']
-model_initialization = [BertModel.from_pretrained('dccuchile/bert-base-spanish-wwm-cased')]
-
+model_initialization = [RobertaModel.from_pretrained("pdelobelle/robbert-v2-dutch-base"),
+                       AutoModel.from_pretrained("GroNLP/bert-base-dutch-cased")]
 epochs = 1000
-batch_size = 300
-learning_rate = 5e-4
+batch_size = 100
+learning_rate = 5e-5
 eps = 1e-8
 weight_decay = 0.3
 amsgrad = True
@@ -44,16 +46,19 @@ device = torch.device("cuda" if use_cuda else "cpu")
 # DATA LOADING
 #################################
 
-df_train = pd.read_parquet('train_spanish.parquet')
-df_val = pd.read_parquet('val_spanish.parquet')
-df_test = pd.read_parquet('test_spanish.parquet')
+df_train = pd.read_parquet('train_dutch.parquet')
+df_val = pd.read_parquet('val_dutch.parquet')
+df_test = pd.read_parquet('test_dutch.parquet')
 
 ###############################################################################
 # INITIALIZATION
 #################################
 
-# TOKENIZER
-tokenizer = BertTokenizer.from_pretrained(model_dir)
+# TOKENIZERS
+tokenizer1 = RobertaTokenizer.from_pretrained(model_dir1)
+tokenizer1.pad_token = 0
+tokenizer2 = AutoTokenizer.from_pretrained(model_dir2)
+tokenizer = [tokenizer1, tokenizer2]
 
 # MODEL
 model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
@@ -68,8 +73,8 @@ criterion = torch.nn.MSELoss()
 optimizer = torch.optim.AdamW(model.parameters(),
                               lr=learning_rate, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad, betas=betas)
 scheduler = get_linear_schedule_with_warmup(optimizer,
-                                            num_warmup_steps=warmup_steps,
-                                            num_training_steps=len(train_dataloader) * epochs)
+                                            num_warmup_steps = warmup_steps,
+                                            num_training_steps = len(train_dataloader) * epochs)
 
 ###############################################################################
 # TRAINING
@@ -79,9 +84,8 @@ if use_cuda:
     model = model.cuda()
     criterion = criterion.cuda()
 
-wandb.init(project="spanish", entity="hubertp")
+wandb.init(project="dutch", entity="hubertp")
 wandb.watch(model, log_freq=5)
 
-# LOOP
 training_loop(model, optimizer, scheduler, epochs, train_dataloader, val_dataloader, criterion,
               device, save_dir, use_wandb = True)
