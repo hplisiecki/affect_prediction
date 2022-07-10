@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from repo.dataset_and_model import Dataset
+from dataset_and_model import Dataset
 
 ###############################################################################
 """

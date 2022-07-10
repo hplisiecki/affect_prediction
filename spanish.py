@@ -1,9 +1,9 @@
 import pandas as pd
 import wandb
 from transformers import get_linear_schedule_with_warmup, BertTokenizer, BertModel
-from repo.dataset_and_model import Dataset, BertRegression
+from dataset_and_model import Dataset, BertRegression
 import torch
-from repo.training_loop import training_loop
+from training_loop import training_loop
 from transformers import logging
 logging.set_verbosity_error()
 

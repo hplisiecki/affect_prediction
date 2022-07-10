@@ -3,8 +3,8 @@ from transformers import PreTrainedTokenizerFast, get_linear_schedule_with_warmu
 import os
 import wandb
 import torch
-from repo.dataset_and_model import Dataset, BertRegression
-from repo.training_loop import training_loop
+from dataset_and_model import Dataset, BertRegression
+from training_loop import training_loop
 
 ###############################################################################
 """

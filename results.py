@@ -1,6 +1,6 @@
-from repo.utils import evaluate, get_metrics
+from utils import evaluate, get_metrics
 from transformers import AutoTokenizer, AutoModel, BertTokenizer, BertModel, PreTrainedTokenizerFast, RobertaTokenizer, RobertaModel
-from repo.dataset_and_model import BertRegression
+from dataset_and_model import BertRegression
 import torch
 import pandas as pd
 from transformers import logging

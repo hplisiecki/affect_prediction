@@ -2,8 +2,8 @@ import pandas as pd
 import wandb
 import torch
 from transformers import get_linear_schedule_with_warmup, RobertaTokenizer, AutoTokenizer, RobertaModel, AutoModel
-from repo.training_loop import training_loop
-from repo.dataset_and_model import Dataset, BertRegression
+from training_loop import training_loop
+from dataset_and_model import Dataset, BertRegression
 from transformers import logging
 logging.set_verbosity_error()
 
