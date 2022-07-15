@@ -21,7 +21,7 @@ dropout = 0.2
 warmup_steps = 600
 save_dir = 'models/test_run'
 
-metric_names = ['valence', 'arousal', 'dominance', 'origin', 'significance', 'concreteness', 'imageability', 'aqcuisition']
+metric_names = ["valence","arousal","dominance","origin","significance","concretness","imegability","age_of_aquisition"]
 
 model_dir = "C:/Users/hplis/PycharmProjects/roberta/roberta_base_transformers/"
 
