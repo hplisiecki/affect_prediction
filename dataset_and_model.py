@@ -129,9 +129,16 @@ class BertRegression(torch.nn.Module):
             output_list.append(x)
 
         x = torch.cat(output_list, dim=1)
+        
+        output = self.rate_embedding(x)
+        return output
 
+    def rate_embedding(self, x):
+        x = self.dropout(x)
+        output_ratings = []
         for name in self.metric_names:
-            setattr(self, name + "all", self.relu(self.dropout(self.layer_norm(getattr(self, 'l_1_' + name)(x) + x))))
-            setattr(self, name + "_output", self.sigmoid(getattr(self, name)(getattr(self, name + 'all'))))
+            first_layer =  self.relu(self.dropout(self.layer_norm(getattr(self, 'l_1_' + name)(x) + x)))
+            second_layer = self.sigmoid(getattr(self, name)(first_layer))
+            output_ratings.append(second_layer)
 
-        return eval(', '.join(["self." + name + "_output" for name in self.metric_names]))
+        return output_ratings
