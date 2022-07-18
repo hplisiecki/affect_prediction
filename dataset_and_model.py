@@ -134,7 +134,6 @@ class BertRegression(torch.nn.Module):
         return output
 
     def rate_embedding(self, x):
-        x = self.dropout(x)
         output_ratings = []
         for name in self.metric_names:
             first_layer =  self.relu(self.dropout(self.layer_norm(getattr(self, 'l_1_' + name)(x) + x)))
