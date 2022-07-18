@@ -1,6 +1,6 @@
-from utils import evaluate, get_metrics
+from repo.utils import evaluate, get_metrics
 from transformers import AutoTokenizer, AutoModel, BertTokenizer, BertModel, PreTrainedTokenizerFast, RobertaTokenizer, RobertaModel
-from dataset_and_model import BertRegression
+from repo.dataset_and_model import BertRegression
 import torch
 import pandas as pd
 from transformers import logging
@@ -128,6 +128,36 @@ tokenizer = PreTrainedTokenizerFast(tokenizer_file=os.path.join(model_dir, "toke
 tokenizer.pad_token = 0
 model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
 model.load_state_dict(torch.load('models/octa_clean.pth'))
+
+# EVALUATION
+predictions, labels = evaluate(model, tokenizer, df_test, max_len, metric_names)
+
+# CALCULATING CORRELATIONS
+get_metrics(predictions, labels, metric_names)
+
+
+
+###############################################################################
+# ENGLISH STIMULI DESCENT
+#################################
+print("English Stimuli Descent")
+
+# HYPERPARAMETERS
+metric_names = ['valence', 'arousal', 'dominance', 'aoa', 'concreteness']
+max_len = 8
+hidden_dim = 768
+dropout = 0.1
+model_dir = "finiteautomata/bertweet-base-emotion-analysis"
+model_name = ["bert"]
+model_initialization = [AutoModel.from_pretrained("finiteautomata/bertweet-base-emotion-analysis")]
+
+# DATA LOADING
+df_test = pd.read_parquet('warriner_anew_test.parquet')
+
+# INITIALIZATION
+tokenizer = AutoTokenizer.from_pretrained(model_dir)
+model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
+model.load_state_dict(torch.load('models/english_stimuli_descent.pth'))
 
 # EVALUATION
 predictions, labels = evaluate(model, tokenizer, df_test, max_len, metric_names)
