@@ -67,7 +67,7 @@ def training_loop(model, optimizer, scheduler, epochs, train_dataloader,
                 for i in range(len(outputs_detached)):
                     correlations[i] += np.corrcoef(outputs_detached[i], labels_np[i])[0,1]
 
-                total_corr = sum(correlations) / len(correlations)
+            total_corr = np.mean(correlations)
 
             if best_corr_total < total_corr / len(val_dataloader):
                 best_corr_total = total_corr / len(val_dataloader)
