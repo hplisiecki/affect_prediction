@@ -56,7 +56,7 @@ tokenizer = PreTrainedTokenizerFast(tokenizer_file=os.path.join(model_dir, "toke
 tokenizer.pad_token = 0
 
 # MODEL
-model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
+model = BertRegression(model_namez, model_initialization, metric_names, dropout, hidden_dim)
 
 # DATALOADERS
 train, val = Dataset(tokenizer, df_train, max_len, metric_names), Dataset(tokenizer, df_val, max_len, metric_names)

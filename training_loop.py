@@ -2,7 +2,6 @@ from tqdm import tqdm
 import torch
 import numpy as np
 import wandb
-
 def training_loop(model, optimizer, scheduler, epochs, train_dataloader,
           val_dataloader, criterion, device, save_dir,
                   use_wandb = False):
@@ -67,7 +66,7 @@ def training_loop(model, optimizer, scheduler, epochs, train_dataloader,
                 for i in range(len(outputs_detached)):
                     correlations[i] += np.corrcoef(outputs_detached[i], labels_np[i])[0,1]
 
-            total_corr = np.mean(correlations)
+                total_corr = sum(correlations) / len(correlations)
 
             if best_corr_total < total_corr / len(val_dataloader):
                 best_corr_total = total_corr / len(val_dataloader)
