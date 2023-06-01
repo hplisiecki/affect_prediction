@@ -416,3 +416,43 @@ for column, column_value in zip(columns, column_values):
 # save
 df.to_csv('predictions_results/abstractness_compare_results.csv', index=False)
 
+##################################
+######## QUESTIONNAIRE TEST
+##################################
+# HYPERPARAMETERS
+metric_names = ['valence', 'arousal', 'dominance', 'origin', 'significance', 'concreteness', 'imageability', 'aqcuisition']
+max_len = 10
+hidden_dim = 768
+dropout = 0.2
+model_dir = "D:/PycharmProjects/roberta/roberta_base_transformers/"
+model_name = ["bert"]
+model_initialization = [RobertaModel.from_pretrained('D:/PycharmProjects/roberta/roberta_base_transformers/')]
+
+# DATA LOADING
+df_test = pd.read_excel('data/questionnaire_words.xlsx')
+df_test.columns = ['word']
+# INITIALIZATION
+tokenizer = PreTrainedTokenizerFast(tokenizer_file=os.path.join(model_dir, "tokenizer.json"))
+tokenizer.pad_token = 0
+model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
+model.load_state_dict(torch.load('models/octa_clean.pth'))
+
+for metric in metric_names:
+    df_test['norm_' + metric] = 0
+
+# EVALUATION
+predictions, labels = evaluate(model, tokenizer, df_test, max_len, metric_names)
+import pandas as pd
+
+predictions = [[float(p2) for p2 in p] for p in predictions]
+
+columns = metric_names
+column_values = predictions
+for column, column_value in zip(columns, column_values):
+    df_test[column] = [c[0] for c in column_value]
+
+columns.append('word')
+df_test = df_test[columns]
+
+# save
+df_test.to_csv('predictions_results/questionnaire_results.csv', index=False)
