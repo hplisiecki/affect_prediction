@@ -237,6 +237,7 @@ for column, column_value in zip(columns, column_values):
 # save
 df.to_csv('predictions_results/dutch_results.csv', index=False)
 
+###############################################################################
 print("German")
 
 # HYPERPARAMETERS
@@ -456,3 +457,51 @@ df_test = df_test[columns]
 
 # save
 df_test.to_csv('predictions_results/questionnaire_results.csv', index=False)
+
+
+############################################################################################################
+######################################## ENGLISH AOA TEST ##################################################
+############################################################################################################
+
+# HYPERPARAMETERS
+metric_names = ['valence', 'arousal', 'dominance', 'aoa', 'concreteness']
+max_len = 8
+hidden_dim = 768
+dropout = 0.1
+model_dir = "nghuyong/ernie-2.0-base-en"    # "nghuyong/ernie-2.0-en"
+model_name = ["bert"]
+model_initialization = [AutoModel.from_pretrained("nghuyong/ernie-2.0-base-en")]
+
+# DATA LOADING
+df_test = pd.read_excel('data/AOA_Kuperman.xlsx')
+df_test['word'] = df_test['Word']
+del df_test['Word']
+
+columns = list(df_test.columns)
+
+temporary_columns = []
+for metric in metric_names:
+    temporary_columns.append('norm_' + metric)
+    df_test['norm_' + metric] = 0
+
+
+# INITIALIZATION
+tokenizer = AutoTokenizer.from_pretrained(model_dir)
+model = BertRegression(model_name, model_initialization, metric_names, dropout, hidden_dim)
+model.load_state_dict(torch.load('models/english_one_nghuyong'))
+
+# EVALUATION
+predictions, labels = evaluate(model, tokenizer, df_test, max_len, metric_names)
+
+
+predictions = [[float(p2) for p2 in p] for p in predictions]
+
+column_values = predictions
+for column, column_value in zip(metric_names, column_values):
+    columns.append(column)
+    df_test[column] = [c for c in column_value]
+
+df_test = df_test[columns]
+
+# save
+df_test.to_csv('predictions_results/english_aoa_results.csv', index=False)
