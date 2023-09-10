@@ -23,3 +23,7 @@ Welcome to our cutting-edge research hub, where we redefine the boundaries of ex
 ** Join us on this revolutionary journey, where state-of-the-art technology meets linguistic depth, and together, let's reshape the world of sentiment analysis and emotion understanding in a multilingual paradigm. Your feedback is not just welcomed—it's essential as we tread on this path of innovation and excellence. 🎉🚀**
 
 ---
+
+📝 Citation: Plisiecki, H., & Sobieszek, A. (2023). Affective Norms Extrapolation Using Transformer-based Neural   
+Networks and Its Application to Experimental Stimuli Selection. Behavior Research Methods.  
+(accepted for publication)
